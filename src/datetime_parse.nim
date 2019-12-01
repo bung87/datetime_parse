@@ -182,7 +182,10 @@ proc parse*(input: string):DateTime {.exportc,discardable,noinit.} =
   elif scanf(input,pattern(hour,":",minute,[],tt,[],"est",[],month,[],day,",",[],year)
     ,hour,minute,tt,month,day,year): # "12:28 PM EST November 16, 2017"
     result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
+  elif scanf(input, pattern(weekday,",",[],month,[],day,"st",[],year)
+    ,weekday,month,day,year): # "Wednesday, August 21st 2019"
+    result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
 
 when isMainModule:
   var init:DateTime
-  
+  assert parse("Wednesday, August 21st 2019") != init
