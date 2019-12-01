@@ -10,10 +10,10 @@ backend       = "js"
 
 # Dependencies
 
-requires "nim >= 1.0.2"
+requires "nim >= 1.1.1"
 
 task dist,"dist src/datetime_parse.nim ":
-  exec "nim js -d:release -d:nodejs -o:dist/datetime_parse.js src/datetime_parse"
+  exec "nim js --taintMode:off -d:release -d:nodejs -o:dist/datetime_parse.js src/datetime_parse"
 
 task dev,"run src/datetime_parse.nim ":
   exec "nim c -r src/datetime_parse"
