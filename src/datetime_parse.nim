@@ -9,9 +9,9 @@ proc ndigits(input: string; intVal: var int; start: int; n: int): int =
     x = x * 10 + input[i+start].ord - '0'.ord
     inc i
   # only overwrite if we had a match
-  if i == n:
-    result = n
-    intVal = x
+  # if i == n:
+  result = i 
+  intVal = x
 
 const Months = collect(newSeq):
   for e in Month.items:
@@ -93,13 +93,18 @@ macro pattern(x: varargs[untyped]):string =
       tmp.add(")")
       arr.add("${" & tmp & "}")
     elif e.kind == nnkBracket:
+      
       arr.add("$[")
-      for x in e:
-        arr.add($x)
+      if len(e) == 0:
+        arr.add("spaces")
+      else:
+        for x in e:
+          arr.add($x)
       arr.add("]")
     elif e.kind == nnkIdent:
       arr.add("${" & e.strVal & "}")
     else:
+      # echo e.kind
       arr.add($e)
   result = newStrLitNode(arr.join(""))
 
@@ -108,26 +113,26 @@ proc parse*(input: string): DateTime {.exportc.} =
   var year, month, weekday, hour, minute, second, day: int
   var tt: string
   # "${ndigits(4)}-${ndigits(2)}-${ndigits(2)}$."
-  if scanf(input, pattern(ndigits(4),"-",ndigits(2),"-",ndigits(2),"$."), year,
+  if scanf(input, pattern(ndigits(4),"-",ndigits(2),"-",ndigits(2)), year,
       month, day):#"2013-01-03"
     result = initDateTime(day, (times.Month)month, year, 0, 0, 0, utc())
-  elif scanf(input, pattern(weekday,",",[spaces],month,[spaces],ndigits(2),",",[spaces],ndigits(4),[spaces],ndigits(2),":",ndigits(2),[spaces],tt), weekday,
+  elif scanf(input, pattern(weekday,",",[],month,[],ndigits(2),",",[],ndigits(4),[],ndigits(2),":",ndigits(2),[],tt), weekday,
     month, day, year, hour, minute, tt):#"Monday, November 25, 2019 11:22 am"
     if tt == "pm":
       hour.inc 12
     result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
-  elif scanf(input, pattern(weekday,",",[spaces],month,[spaces],ndigits(2),",",[spaces],ndigits(4),"$."), weekday,
+  elif scanf(input, pattern(weekday,",",[],month,[],ndigits(2),",",[],ndigits(4)), weekday,
     month, day, year): #"Monday, November 25, 2019"
     result = initDateTime(day, (times.Month)month, year, 0, 0, 0, utc())
-  elif scanf(input, "${month}.$[spaces]${ndigits(2)}$[spaces]${ndigits(4)}$[spaces]@$[spaces]${ndigits(2)}:${ndigits(2)}${tt}$.", month,
+  elif scanf(input, pattern(month,".",[],ndigits(2),[],ndigits(4),[],"@",[],ndigits(2),":",ndigits(2),tt), month,
     day, year, hour, minute, tt):#"Nov. 8 2019 @ 3:32am"
     if tt == "pm":
       hour.inc 12
     result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
-  elif scanf(input, "${ndigits(2)}-${month}-${ndigits(2)}$.", day,
+  elif scanf(input, pattern(ndigits(2),"-",month,ndigits(2)), day,
     month, year): # "31-May-19"
     result = initDateTime(day, (times.Month)month, year, 0, 0, 0, utc())
-  elif scanf(input, "${month}$[spaces]${ndigits(2)},$[spaces]${ndigits(4)}$[spaces]/$[spaces]${ndigits(2)}:${ndigits(2)}$[spaces]${tt}$.", month,
+  elif scanf(input, pattern(month,[],ndigits(2),",",[],ndigits(4),[],"/",[],ndigits(2),":",ndigits(2),tt), month,
     day, year, hour, minute, tt): # "JUNE 12, 2019 / 11:31 AM"
     result = initDateTime(day, (times.Month)month, year, 0, 0, 0, utc())
 
