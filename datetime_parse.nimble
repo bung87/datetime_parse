@@ -6,7 +6,7 @@ description   = "A new awesome nimble package"
 license       = "MIT"
 srcDir        = "src"
 
-backend       = "js"
+backend       = "c"
 
 # Dependencies
 
