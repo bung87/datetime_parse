@@ -5,11 +5,12 @@
 #
 # To run these tests, simply execute `nimble test`.
 import times except parse,join
+import timezones
 import unittest
 import os
 import streams
-
 import datetime_parse
+
 test "all":
   var init:DateTime
 
@@ -23,5 +24,6 @@ test "all":
 
   if not isNil(fs):
     while fs.readLine(line):
+      echo line & "==" ,parse(line) ,"!=",init
       check parse(line) != init
     fs.close()

@@ -1,5 +1,7 @@
 import strscans, unicode, macros, sequtils, strutils, sugar
 import times except parse, join
+import timezones #except initDateTime
+
 proc ndigits(input: string; intVal: var int; start: int; n: int): int =
   # matches exactly ``n`` digits. Matchers need to return 0 if nothing
   # matched or otherwise the number of processed chars.
@@ -12,6 +14,18 @@ proc ndigits(input: string; intVal: var int; start: int; n: int): int =
   # if i == n:
   result = i
   intVal = x
+
+proc tz(input: string; strVal: var string; start: int; ): int =
+  let tzs = collect(newSeq):
+    for x in tzNames(getDefaultTzDb()):
+      x.toLower
+  var i = 0
+  while i+start < input.len and input[i+start] in {'a'..'z', '-', '/', '_'}:
+    inc i
+  let lower = input[start..i+start - 1]
+  if lower in tzs:
+    result = i
+    strVal = if lower.contains('/') : lower.capitalize else: lower.toUpper
 
 proc year(input: string; intVal: var int; start: int; ): int = ndigits(input,
     intVal, start, 4)
@@ -117,10 +131,11 @@ macro pattern(x: varargs[untyped]): string =
       arr.add($e)
   result = newStrLitNode(arr.join("") & "$.")
 
-proc parse*(input: string): DateTime {.exportc, discardable, noinit.} =
+proc parse*(input: string; ): DateTime {.exportc, discardable, noinit.} =
   let input = strutils.strip(input).toLower
   var year, month, weekday, hour, minute, second, day: int
   var tt: string
+  var tzs: string
   if scanf(input, pattern(year, "-", ndigits(2), "-", day), year,
       month, day): #"2013-01-03"
     result = initDateTime(day, (times.Month)month, year, 0, 0, 0, utc())
@@ -187,9 +202,9 @@ proc parse*(input: string): DateTime {.exportc, discardable, noinit.} =
       [], day, ",", [], year)
     , hour, minute, weekday, month, day, year):
     result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
-  elif scanf(input, pattern(year, "年", ndigits(2), "月", ndigits(2), "日", [],
-      hour, ":", minute)
-    , year, month, day, hour, minute): # "2019年11月13日 11:00"
+  elif scanf(input, pattern(year, "年", ndigits(2), "月", ndigits(2), "日", [
+    ], hour, ":", minute)
+  , year, month, day, hour, minute): # "2019年11月13日 11:00"
     result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
   elif scanf(input, pattern(month, [], day, ",", [], year, [], "|", [], hour,
       ":", minute, [], tt)
@@ -211,24 +226,24 @@ proc parse*(input: string): DateTime {.exportc, discardable, noinit.} =
     , year, month, day, hour, minute): # "2019.11.26 07:15"
     result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
   elif scanf(input, pattern(month, [], day, ",", [], year, [], "/", [], hour,
-      ":", minute, [], tt, [], "cst")
-    , month, day, year, hour, minute, tt): # "Nov 8, 2019 / 05:22 PM CST"
+      ":", minute, [], tt, [], tz)
+    , month, day, year, hour, minute, tt, tzs): # "Nov 8, 2019 / 05:22 PM CST"
     if tt == "pm" and hour < 12:
       hour.inc 12
-    result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
+    result = initDateTime(day, (times.Month)month, year, hour, minute, 0, tz(tzs))
   elif scanf(input, pattern(month, [], day, ",", [], year, ",", [], hour, ":",
       minute, [], tt)
     , month, day, year, hour, minute, tt): # "Nov 21, 2019, 1:34 AM"
     if tt == "pm" and hour < 12:
       hour.inc 12
     result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
-  elif scanf(input, pattern(hour, ":", minute, [], tt, [], "est", [], month, [],
+  elif scanf(input, pattern(hour, ":", minute, [], tt, [], tz, [], month, [],
       day, ",", [], year)
-    , hour, minute, tt, month, day, year): # "12:28 PM EST November 16, 2017"
+    , hour, minute, tt, tzs, month, day, year): # "12:28 PM EST November 16, 2017"
     if tt == "pm" and hour < 12:
       hour.inc 12
-    result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
-  elif scanf(input, pattern(weekday, ",", [], month, [], day, "st", [], year)
+    result = initDateTime(day, (times.Month)month, year, hour, minute, 0, tz(tzs))
+  elif scanf(input, pattern(weekday, ",", [], month, [], day, [], year)
     , weekday, month, day, year): # "Wednesday, August 21st 2019"
     result = initDateTime(day, (times.Month)month, year, hour, minute, 0, utc())
 

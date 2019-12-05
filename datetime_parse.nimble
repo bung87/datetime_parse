@@ -11,6 +11,7 @@ backend       = "c"
 # Dependencies
 
 requires "nim >= 1.1.1"
+requires "timezones >= 0.5.1"
 
 task dist,"dist src/datetime_parse.nim ":
   exec "nim js --taintMode:off -d:release -d:nodejs -o:dist/datetime_parse.js src/datetime_parse"
