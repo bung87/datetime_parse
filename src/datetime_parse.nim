@@ -250,3 +250,6 @@ proc parse*(input: string; ): DateTime {.exportc, discardable, noinit.} =
 when isMainModule:
   var init: DateTime
   assert parse("Wednesday, August 21st 2019") != init
+
+when defined(nodejs):
+  {.emit: "module.exports = parse".}
