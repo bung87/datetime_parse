@@ -25,7 +25,7 @@ proc tz(input: string; strVal: var string; start: int; ): int =
   let lower = input[start..i+start - 1]
   if lower in tzs:
     result = i
-    strVal = if lower.contains('/') : lower.capitalize else: lower.toUpper
+    strVal = if lower.contains('/'): lower.capitalize else: lower.toUpper
 
 proc year(input: string; intVal: var int; start: int; ): int = ndigits(input,
     intVal, start, 4)
@@ -131,9 +131,9 @@ macro pattern(x: varargs[untyped]): string =
       arr.add($e)
   result = newStrLitNode(arr.join("") & "$.")
 
-proc parse*(input: string; ): DateTime {.exportc, discardable, noinit.} =
-  let input = strutils.strip(input).toLower
-  var year, month, weekday, hour, minute, second, day: int
+proc parse*(ipt: string; ): DateTime {.exportc, discardable, noinit.} =
+  let input = strutils.strip(ipt).toLower
+  var year, month, weekday, hour, minute, second, day: int = 0
   var tt: string
   var tzs: string
   if scanf(input, pattern(year, "-", ndigits(2), "-", day), year,
