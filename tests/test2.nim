@@ -24,5 +24,6 @@ test "corpus":
 
   if not isNil(fs):
     while fs.readLine(line):
+      # echo  line,"==",parse(line)
       check parse(line) != init
     fs.close()

@@ -30,8 +30,30 @@ proc tz(input: string; strVal: var string; start: int; ): int =
     result = i
     strVal = if lower.contains('/'): lower.capitalize else: lower.toUpper
 
-proc year(input: string; intVal: var int; start: int; ): int = ndigits(input,
-    intVal, start, 4)
+proc year(input: string; intVal: var int; start: int;n = 4 ): int = 
+  var x = 0
+  var i = 0
+  while i < n and i+start < input.len and input[i+start] in {'0'..'9'}:
+    x = x * 10 + input[i+start].ord - '0'.ord
+    inc i
+  # only overwrite if we had a match
+  if i == n:
+    result = i
+    intVal = x
+
+proc year2(input: string; intVal: var int; start: int;n = 2 ): int = 
+  var x = 0
+  var i = 0
+  while i < n and i+start < input.len and input[i+start] in {'0'..'9'}:
+    x = x * 10 + input[i+start].ord - '0'.ord
+    inc i
+  # only overwrite if we had a match
+  if i == n:
+    result = i
+    intVal = x
+
+proc monthdigit(input: string; intVal: var int; start: int; ): int = ndigits(
+    input, intVal, start, 2)
 
 proc hour(input: string; intVal: var int; start: int; ): int = ndigits(input,
     intVal, start, 2)
@@ -101,8 +123,9 @@ proc tt(input: string; strVal: var string; start: int; ): int =
         strVal = e
       inc i
 
-macro pattern(x: varargs[untyped]): string =
+macro pattern(input: string; x: varargs[untyped]): untyped =
   var arr = newSeq[string]()
+  var args = newSeq[NimNode]()
   for e in x.items:
     var tmp: string
     if e.kind == nnkCall:
@@ -129,116 +152,106 @@ macro pattern(x: varargs[untyped]): string =
           arr.add($x)
       arr.add("]")
     elif e.kind == nnkIdent:
+      args.add e
       arr.add("${" & e.strVal & "}")
     else:
       arr.add($e)
-  result = newStrLitNode(arr.join("") & "$.")
+  let exp = newStrLitNode(arr.join("") & "$.")
+  let ide = ident("scanf")
+  result = newNimNode(nnkCall, ide)
+  result.add ide
+  result.add input
+  result.add exp
+  for a in args.items:
+    result.add a
+  # result = newCall(ident("scanf"),input,exp )
 
 proc parse*(ipt: string; ): DateTime {.exportc, discardable, noinit.} =
   let input = strutils.strip(ipt).toLower
-  var year, month, weekday, hour, minute, second, day: int = 0
+  var year,year2, month, monthdigit, weekday, hour, minute, second, day: int = 0
   var tt: string
-  var tzs: string
+  var tz: string
   var tzv = local()
-  if scanf(input, pattern(year, "-", ndigits(2), "-", day), year,
-      month, day): discard #"2013-01-03"
+  if pattern(input, year, "-", monthdigit, "-", day): discard #"2013-01-03"
 
-  elif scanf(input, pattern(weekday, ",", [], month, [], day, ",", [], year, [],
-      hour, ":", minute, [], tt), weekday,
-    month, day, year, hour, minute, tt): discard #"Monday, November 25, 2019 11:22 am"
+  elif pattern(input, weekday, ",", [], month, [], day, ",", [], year, [],
+      hour, ":", minute, [], tt): discard #"Monday, November 25, 2019 11:22 am"
 
-  elif scanf(input, pattern(weekday, ",", [], month, [], day, ",", [], year),
-    weekday, month, day, year): discard #"Monday, November 25, 2019"
+  elif pattern(input, weekday, ",", [], month, [], day, ",", [],
+      year): discard #"Monday, November 25, 2019"
 
-  elif scanf(input, pattern(month, ".", [], day, [], year, [], "@", [], hour,
-      ":", minute, tt), month, day, year, hour, minute, tt): discard #"Nov. 8 2019 @ 3:32am"
+  elif pattern(input, month, ".", [], day, [], year, [], "@", [], hour, ":",
+      minute, tt): discard #"Nov. 8 2019 @ 3:32am"
 
-  elif scanf(input, pattern(day, "-", month, "-", year),
-   day, month, year): discard # "31-May-19"
+  elif pattern(input, day, "-", month, "-", year2): discard # "31-May-19"
 
-  elif scanf(input, pattern(month, [], day, ",", [], year, [], "/", [], hour,
-      ":", minute, [], tt), month,
-    day, year, hour, minute, tt): discard # "JUNE 12, 2019 / 11:31 AM"
+  elif pattern(input, month, [], day, ",", [], year, [], "/", [], hour, ":",
+      minute, [], tt): discard # "JUNE 12, 2019 / 11:31 AM"
 
-  elif scanf(input, pattern(month, [], day, ",", [], year), month,
-    day, year): discard # "JUNE 12, 2019"
+  elif pattern(input, month, [], day, ",", [], year): discard # "JUNE 12, 2019"
 
-  elif scanf(input, pattern(day, [], month, ",", [], year, [], hour, ":",
-      minute), day, month, year, hour, minute, tt): discard # "07 Nov, 2019 12:44"
+  elif pattern(input, day, [], month, ",", [], year, [], hour, ":",
+      minute): discard # "07 Nov, 2019 12:44"
 
-  elif scanf(input, pattern(month, [], day, ",", [], year, [], "at", [], hour,
-      ":", minute, [], tt), month,
-    day, year, hour, minute, tt): discard # "November 20, 2019 at 01:12 PM"
+  elif pattern(input, month, [], day, ",", [], year, [], "at", [], hour,
+      ":", minute, [], tt): discard # "November 20, 2019 at 01:12 PM"
 
-  elif scanf(input, pattern(day, [], month, [], year, [], "at", [], hour, ":",
-      minute), day,
-    month, year, hour, minute): discard # "13 AUG 2019 AT 15:54"
+  elif pattern(input, day, [], month, [], year, [], "at", [], hour, ":",
+      minute): discard # "13 AUG 2019 AT 15:54"
 
-  elif scanf(input, pattern(ndigits(2), "/", day, "/", ndigits(2), [], hour,
-      ":", minute), month,
-    day, year, hour, minute): discard #"7/25/19 13:00"
+  elif pattern(input, monthdigit, "/", day, "/", year2, [], hour,
+      ":", minute): discard #"7/25/19 13:00"
 
-  elif scanf(input, pattern(day, "/", ndigits(2), "/", year, [], "-", [], hour,
-      ":", minute), day,
-    month, year, hour, minute): discard #"27/08/2019 - 13:54"
+  elif pattern(input, day, "/", monthdigit, "/", year, [], "-", [], hour,
+      ":", minute): discard #"27/08/2019 - 13:54"
 
-  elif scanf(input, pattern(day, "/", ndigits(2), "/", ndigits(2)), day,
-    month, year): discard #"9/11/19"
+  elif pattern(input, day, "/", monthdigit, "/", year2): discard #"9/11/19"
 
-  elif scanf(input, pattern(day, "/", ndigits(2), "/", ndigits(4)), month,
-    day, year): discard #"03/17/2019"
+  elif pattern(input, monthdigit, "/", day, "/", year): discard #"03/17/2019"
 
-  elif scanf(input, pattern(weekday, [], hour, ":", minute, [], tt, ",", [],
-      month, [], day, ",", [], year),
-    weekday, hour, minute, tt, month, day, year): discard # "Tue 12:58 PM, Jul 16, 2019"
+  elif pattern(input, weekday, [], hour, ":", minute, [], tt, ",", [],
+      month, [], day, ",", [], year): discard # "Tue 12:58 PM, Jul 16, 2019"
 
-  elif scanf(input, pattern(hour, ":", minute, ",", [], weekday, ",", [], month,
-      [], day, ",", [], year)
-    , hour, minute, weekday, month, day, year): discard
+  elif pattern(input, hour, ":", minute, ",", [], weekday, ",", [], month,
+      [], day, ",", [], year): discard
 
-  elif scanf(input, pattern(year, "年", ndigits(2), "月", ndigits(2), "日", [
-    ], hour, ":", minute)
-  , year, month, day, hour, minute): discard # "2019年11月13日 11:00"
+  elif pattern(input, year, "年", monthdigit, "月", day, "日", [
+    ], hour, ":", minute): discard # "2019年11月13日 11:00"
 
-  elif scanf(input, pattern(month, [], day, ",", [], year, [], "|", [], hour,
-      ":", minute, [], tt)
-    , month, day, year, hour, minute, tt): discard # "NOV 26, 2019 | 10:00 AM"
+  elif pattern(input, month, [], day, ",", [], year, [], "|", [], hour,
+      ":", minute, [], tt): discard # "NOV 26, 2019 | 10:00 AM"
 
-  elif scanf(input, pattern(month, ".", [], day, ",", [], year, [], "/", [],
-      hour, ":", minute, [], tt)
-    , month, day, year, hour, minute, tt): discard # "AUG. 12, 2019 / 1:36 PM"
+  elif pattern(input, month, ".", [], day, ",", [], year, [], "/", [],
+      hour, ":", minute, [], tt): discard # "AUG. 12, 2019 / 1:36 PM"
 
-  elif scanf(input, pattern(month, [], day, ",", [], year, [], [], hour, ":",
-      minute, [], tt)
-    , month, day, year, hour, minute, tt): discard # "April 2, 2019 5:18 PM"
+  elif pattern(input, month, [], day, ",", [], year, [], [], hour, ":",
+      minute, [], tt): discard # "April 2, 2019 5:18 PM"
 
-  elif scanf(input, pattern(month, ".", [], day, ",", [], year)
-    , month, day, year): discard # "Nov. 26, 2019"
+  elif pattern(input, month, ".", [], day, ",", [], year): discard # "Nov. 26, 2019"
 
-  elif scanf(input, pattern(year, ".", ndigits(2), ".", day, [], hour, ":",
-      minute, [])
-    , year, month, day, hour, minute): discard # "2019.11.26 07:15"
+  elif pattern(input, year, ".", monthdigit, ".", day, [], hour, ":",
+      minute, []): discard # "2019.11.26 07:15"
 
-  elif scanf(input, pattern(month, [], day, ",", [], year, [], "/", [], hour,
-      ":", minute, [], tt, [], tz)
-    , month, day, year, hour, minute, tt, tzs): discard # "Nov 8, 2019 / 05:22 PM CST"
+  elif pattern(input, month, [], day, ",", [], year, [], "/", [], hour,
+      ":", minute, [], tt, [], tz): discard # "Nov 8, 2019 / 05:22 PM CST"
 
-  elif scanf(input, pattern(month, [], day, ",", [], year, ",", [], hour, ":",
-      minute, [], tt)
-    , month, day, year, hour, minute, tt): discard # "Nov 21, 2019, 1:34 AM"
+  elif pattern(input, month, [], day, ",", [], year, ",", [], hour, ":",
+      minute, [], tt): discard # "Nov 21, 2019, 1:34 AM"
 
-  elif scanf(input, pattern(hour, ":", minute, [], tt, [], tz, [], month, [],
-      day, ",", [], year)
-    , hour, minute, tt, tzs, month, day, year): discard # "12:28 PM EST November 16, 2017"
+  elif pattern(input, hour, ":", minute, [], tt, [], tz, [], month, [],
+      day, ",", [], year): discard # "12:28 PM EST November 16, 2017"
 
-  elif scanf(input, pattern(weekday, ",", [], month, [], day, "st", [], year)
-    , weekday, month, day, year): discard # "Wednesday, August 21st 2019"
+  elif pattern(input, weekday, ",", [], month, [], day, "st", [],
+      year): discard # "Wednesday, August 21st 2019"
 
   if tt == "pm" and hour < 12:
     hour.inc 12
-  if tzs.len > 0:
-    tzv = tz(tzs)
-  result = initDateTime(day, (times.Month)month, year, hour, minute, 0, tzv)
+  if tz.len > 0:
+    tzv = timezones.tz(tz)
+  var finalMonth = (if month != 0: month else: monthdigit)
+  var finalYear = (if year != 0: year else: year2)
+
+  result = initDateTime(day, (times.Month)finalMonth, finalYear, hour, minute, 0, tzv)
 
 
 when defined(nodejs):
