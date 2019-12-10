@@ -10,5 +10,6 @@ const rl = readline.createInterface({
 
 rl.on('line', (line) => {
   console.log(`Line from file: ${line}`);
-  console.log(parse(line.trim()))
+  let r = parse(line.trim())
+  console.log(r)
 });

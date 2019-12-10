@@ -1,4 +1,4 @@
-import strscans, unicode, macros, sequtils, strutils, sugar
+import strscans, unicode, macros, strutils, sugar
 import times except parse, join
 import timezones #except initDateTime
 
@@ -251,7 +251,7 @@ proc parse*(ipt: string; ): DateTime {.exportc, discardable, noinit.} =
   var finalMonth = (if month != 0: month else: monthdigit)
   var finalYear = (if year != 0: year else: year2)
 
-  result = initDateTime(day, (times.Month)finalMonth, finalYear, hour, minute, 0, tzv)
+  result = initDateTime(day, (times.Month)finalMonth, finalYear, hour, minute, second, tzv)
 
 
 when defined(nodejs):
