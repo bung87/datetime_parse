@@ -1,10 +1,10 @@
-const parse = require("../dist/datetime_parse")
+const parse = require("../build/datetime_parse")
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
-console.log(parse("Monday, November 25, 2019 11:22 am"))
+// console.log(parse("Monday, November 25, 2019 11:22 am"))
 const rl = readline.createInterface({
-  input: fs.createReadStream(path.join(__dirname,"corpus.txt")),
+  input: fs.createReadStream(path.join(__dirname,"corpus.txt"),{encoding: "utf8"}),
   crlfDelay: Infinity
 });
 

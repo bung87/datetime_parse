@@ -167,7 +167,8 @@ macro pattern(input: string; x: varargs[untyped]): untyped =
   # result = newCall(ident("scanf"),input,exp )
 
 proc parse*(ipt: string; ): DateTime {.exportc, discardable, noinit.} =
-  let input = strutils.strip(ipt).toLower
+  echo ipt
+  let input = unicode.strip(ipt).toLower
   var year,year2, month, monthdigit, weekday, hour, minute, second, day: int = 0
   var tt: string
   var tz: string
