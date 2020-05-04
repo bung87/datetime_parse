@@ -144,6 +144,7 @@ macro pattern(input: string; x: varargs[untyped]): untyped =
         elif x.kind == nnkIntLit:
           tmp.add($x.intVal)
         else:
+          debugEcho $x
           tmp.add($x)
       tmp.add(")")
       arr.add("${" & tmp & "}")
@@ -172,7 +173,6 @@ macro pattern(input: string; x: varargs[untyped]): untyped =
   # result = newCall(ident("scanf"),input,exp )
 
 proc parse*(ipt: string; ): DateTime {.exportc, discardable, noinit.} =
-  echo ipt
   let input = unicode.strip(ipt).toLower
   var year,year2, month, monthdigit, weekday, hour, minute, second, day: int = 0
   var tt: string
@@ -261,4 +261,4 @@ proc parse*(ipt: string; ): DateTime {.exportc, discardable, noinit.} =
 
 
 when defined(nodejs):
-  {.emit: "module.exports = parse".}
+  {.emit: "module.exports = {parse:parse,makeNimstrLit:makeNimstrLit}".}

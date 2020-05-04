@@ -1,4 +1,4 @@
-const parse = require("../build/datetime_parse")
+const {parse,makeNimstrLit} = require("../build/datetime_parse")
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -10,6 +10,6 @@ const rl = readline.createInterface({
 
 rl.on('line', (line) => {
   console.log(`Line from file: ${line}`);
-  let r = parse(line.trim())
+  let r = parse(makeNimstrLit(line.trim()) )
   console.log(r)
 });
