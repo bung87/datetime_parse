@@ -1,8 +1,8 @@
 import strscans, unicode, macros, strutils, sugar
 
 import timezones #except initDateTime
-when defined(js):
-  import jscore except DateTime
+# when defined(js):
+#   import jscore except DateTime
 #   from times import Month,WeekDay,local,initDateTime
 # else:
 import times except parse, join
