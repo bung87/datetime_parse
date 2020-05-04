@@ -12,7 +12,7 @@ import streams
 import datetime_parse
 
 test "corpus":
-  var init:DateTime
+  var init = now()
 
   let appDir = currentSourcePath().parentDir()
 

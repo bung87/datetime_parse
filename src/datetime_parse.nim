@@ -1,6 +1,11 @@
 import strscans, unicode, macros, strutils, sugar
-import times except parse, join
+
 import timezones #except initDateTime
+# when defined(js):
+#   import jscore
+#   from times import Month,WeekDay,local,initDateTime
+# else:
+import times except parse, join
 
 proc ndigits(input: string; intVal: var int; start: int; n: int): int =
   # matches exactly ``n`` digits. Matchers need to return 0 if nothing

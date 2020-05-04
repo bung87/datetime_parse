@@ -10,7 +10,7 @@ backend       = "c"
 
 # Dependencies
 
-requires "nim >= 1.1.1"
+requires "nim >= 1.2.0"
 requires "timezones >= 0.5.1"
 
 task dist,"dist src/datetime_parse.nim ":
