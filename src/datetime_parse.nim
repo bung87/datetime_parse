@@ -172,7 +172,7 @@ macro pattern(input: string; x: varargs[untyped]): untyped =
     result.add a
   # result = newCall(ident("scanf"),input,exp )
 
-proc parse*(ipt: string; ): DateTime {.exportc, discardable, noinit.} =
+proc parse*(ipt: string; ): DateTime {.exportc,discardable, noinit.} =
   let input = unicode.strip(ipt).toLower
   var year,year2, month, monthdigit, weekday, hour, minute, second, day: int = 0
   var tt: string
@@ -259,6 +259,5 @@ proc parse*(ipt: string; ): DateTime {.exportc, discardable, noinit.} =
 
   result = initDateTime(day, (times.Month)finalMonth, finalYear, hour, minute, second, tzv)
 
-
 when defined(nodejs):
-  {.emit: "module.exports = {parse:parse,makeNimstrLit:makeNimstrLit}".}
+  {.emit: "module.exports = {parse:function(s){return parse(makeNimstrLit(s))}}".}
