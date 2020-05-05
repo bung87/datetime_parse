@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "bung87"
-description   = "A new awesome nimble package"
+description   = "parse datetime from various resources"
 license       = "MIT"
 srcDir        = "src"
 
