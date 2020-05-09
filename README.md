@@ -10,7 +10,8 @@ supported format see [corpus.txt](./tests/corpus.txt)
 
 this repo also demonstrate how to write a nim module and export it as nodejs module.  
 
-# Usage  
+## Usage  
+for js  
 
 ``` js
 const {parse}  = require("datetime_parse")
@@ -19,13 +20,21 @@ const s ="Monday, November 25, 2019 11:22 am"
 let r = parse(s)
 assert.equal(r.getFullYear(),2019)
 ```  
-# Development  
+for nim  
+
+``` Nim
+import datetime_parse
+const s ="Monday, November 25, 2019 11:22 am"
+let r = parse(s)
+assert r.year == 2019 
+```
+## Development  
 
 build  
 
 `nimble buildjs`
 
-# Contribution  
+## Contribution  
 
 add a datetime format welcome.
 
