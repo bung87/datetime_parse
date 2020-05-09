@@ -43,6 +43,12 @@ build
 
 `nimble buildjs`
 
+## Deployment  
+
+dist    
+
+`nimble distjs`
+
 ## Contribution  
 
 add a datetime format welcome.
