@@ -9,6 +9,15 @@ this lib using pattern match design to parse datetime from various media resourc
 supported format see [corpus.txt](./tests/corpus.txt)  
 
 this repo also demonstrate how to write a nim module and export it as nodejs module.  
+## Installation  
+for nim  
+
+`nimble install datetime_parse`  
+
+for js 
+
+`npm install datetime_parse` or   
+`yarn add datetime_parse`
 
 ## Usage  
 for js  
