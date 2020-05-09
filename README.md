@@ -1,4 +1,4 @@
-# datetime_parse  
+# datetime_parse  [![Npm Version](https://badgen.net/npm/v/datetime_parse)](https://www.npmjs.com/package/datetime_parse)  ![npm: total downloads](https://badgen.net/npm/dt/datetime_parse) 
 
 a datetime parser write in [Nim](https://nim-lang.org/)  
 
