@@ -2,3 +2,4 @@
 *.nims
 *.out
 *.txt
+*.nimble
