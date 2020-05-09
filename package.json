@@ -1,6 +1,6 @@
 {
   "name": "datetime_parse",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "parse datetime from various media resources write in Nim",
   "main": "lib/datetime_parse.js",
   "directories": {
