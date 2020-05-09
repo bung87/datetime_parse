@@ -1,0 +1,23 @@
+{
+  "name": "datetime_parse",
+  "version": "1.0.0",
+  "description": "parse datetime from various media resources write in Nim",
+  "main": "lib/datetime_parse.js",
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bung87/datetime_parse.git"
+  },
+  "author": "bung87",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bung87/datetime_parse/issues"
+  },
+  "homepage": "https://github.com/bung87/datetime_parse#readme"
+}

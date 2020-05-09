@@ -177,7 +177,7 @@ proc parse*(ipt: string; ): DateTime {.exportc,discardable, noinit.} =
   var year,year2, month, monthdigit, weekday, hour, minute, second, day: int = 0
   var tt: string
   var tz: string
-  var tzv = local()
+  var tzv = utc()
   if pattern(input, year, "-", monthdigit, "-", day): discard #"2013-01-03"
 
   elif pattern(input, weekday, ",", [], month, [], day, ",", [], year, [],
@@ -260,4 +260,8 @@ proc parse*(ipt: string; ): DateTime {.exportc,discardable, noinit.} =
   result = initDateTime(day, (times.Month)finalMonth, finalYear, hour, minute, second, tzv)
 
 when defined(nodejs):
-  {.emit: "module.exports = {parse:function(s){return parse(makeNimstrLit(s))}}".}
+
+  {.emit: """module.exports = {parse:function(s){
+    const datetime = parse(makeNimstrLit(s))
+    return new Date(datetime.year,datetime.month - 1,datetime.monthday,datetime.hour,datetime.minute,datetime.second,datetime.nanosecond / 1000000)
+   }}""".}

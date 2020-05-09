@@ -3,3 +3,4 @@ dist/
 build/
 tests/test1.js
 tests/test2.js
+lib/
